@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Memo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" href="images/icon.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="min-h-screen flex flex-col items-center p-4 md:p-6 overflow-x-hidden relative bg-cover bg-center bg-no-repeat"
+      style="background-image: url('https://i.pinimg.com/736x/5e/2d/7e/5e2d7e97b05a3816cf3e589584f69726.jpg');">
+
+  <!-- Tombol Musik -->
+  <button id="musicBtn" class="fixed bottom-5 left-5 z-50 bg-white rounded-full p-3 shadow-lg hover:scale-110 transition">
+    <img src="images/music.png" class="w-6 h-6" alt="Music" />
+  </button>
+
+  <!-- Popup Lagu -->
+  <div id="musicPopup" class="fixed bottom-20 left-5 z-40 bg-white rounded-xl p-4 w-72 shadow-xl opacity-0 translate-y-5 pointer-events-none transition-all duration-300">
+    <div class="flex justify-between items-center mb-2">
+      <h3 class="text-pink-600 font-semibold">Pilih Lagu</h3>
+      <button id="closePopup" class="text-gray-400 hover:text-red-500 text-xl font-bold">&times;</button>
+    </div>
+    <ul id="songList" class="space-y-2 max-h-40 overflow-y-auto text-sm pr-2"></ul>
+    <div id="musicBar" class="mt-4 border-t pt-4 flex flex-col gap-3">
+      <div class="flex flex-row gap-3">
+        <img src="images/0_1_flaws_and_all_.jpeg" class="w-6" />
+        <img src="https://i.pinimg.com/736x/07/25/bc/0725bcbe6dd074c89c909886e0704f62.jpg" class="w-6" />
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="playPauseBtn">
+          <img id="playIcon" src="images/pause.png" class="w-6 h-6" />
+        </button>
+        <span id="currentSong" class="font-medium text-gray-700 text-sm truncate"></span>
+        <input type="range" id="progressBar" value="0" class="w-full h-1 bg-gray-200 rounded" />
+      </div>
+    </div>
+  </div>
+  <audio id="audio" preload="auto"></audio>
+  <div id="overlay" class="fixed inset-0 z-30 hidden"></div>
+
+  <!-- Judul -->
+  <h1 class="text-2xl md:text-3xl font-bold text-pink-700 mb-4 bg-white/70 px-4 py-2 rounded-xl backdrop-blur text-center w-full max-w-lg">
+    Gallery
+  </h1>
+
+  
+
+  <!-- Gallery Grid -->
+  <div id="gallery" class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 w-full max-w-5xl px-2 sm:px-4 mb-24 transition-all duration-300"></div>
+<!-- Tombol keluar gallery teman -->
+<div id="exitFriendGallery" class="mb-4 hidden">
+  <button onclick="exitGallery()" class="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800 transition">
+    🚪 Keluar dari Gallery Teman
+  </button>
+</div>
+
+<!-- Notifikasi Berhasil Akses -->
+<div id="popupSuccess" class="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-white text-green-700 px-6 py-4 rounded-xl shadow-lg border border-green-300 flex items-center gap-3 opacity-0 scale-95 pointer-events-none transition-all duration-300">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+  </svg>
+  <span class="text-sm font-medium">Berhasil mengakses gallery teman!</span>
+</div>
+
+
+  <!-- Tombol Aksi -->
+  <button id="addButton" class="fixed bottom-5 right-5 bg-pink-500 text-white p-4 rounded-full shadow-lg hover:scale-110 transition z-40">
+    <img src="images/plus.png" class="w-6 h-6" alt="Tambah" />
+  </button>
+  <button id="selectModeBtn" class="fixed bottom-20 right-5 bg-pink-500 text-white p-3 rounded-full shadow-lg hover:scale-110 transition z-40">
+    <img src="images/select.png" class="w-6 h-6" />
+  </button>
+  <button id="deleteSelectedBtn" class="fixed bottom-36 right-5 bg-red-500 text-white p-3 rounded-full shadow-lg hover:scale-110 transition z-40 hidden">
+    <img src="images/delete.png" class="w-6 h-6" />
+  </button>
+  <div id="selectionInfo" class="fixed bottom-36 right-[4.5rem] bg-white text-gray-800 px-4 py-2 rounded shadow z-40 hidden">
+    Klik foto untuk memilih yang ingin dihapus
+  </div>
+
+  <!-- Modal Upload -->
+  <div id="uploadModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl p-6 w-11/12 max-w-sm relative animate-fadeIn shadow-xl">
+      <button id="closeModal" class="absolute top-2 right-3 text-gray-500 hover:text-red-500 text-2xl font-bold">&times;</button>
+      <h2 class="text-lg font-semibold text-gray-800 mb-4 text-center">Tambah Kenangan</h2>
+      <form id="uploadForm" class="space-y-3">
+        <div class="bg-pink-100 text-pink-800 text-center text-sm font-medium px-3 py-2 rounded w-full">
+          Pilih foto terbaikmu ya! 💖
+        </div>
+        <img id="previewImage" src="" alt="Preview" class="w-full h-48 object-cover rounded hidden border" />
+        <input type="file" id="photoInput" required class="w-full border p-2 rounded text-sm" />
+        <input type="text" id="captionInput" placeholder="Tulis kenangan..." class="w-full border p-2 rounded text-sm" />
+        <button type="submit" class="w-full bg-pink-600 text-white py-2 rounded hover:bg-pink-700 transition text-sm">Simpan</button>
+      </form>
+      <!-- Panel Kode Gallery -->
+  <div class="w-full max-w-md mb-6 bg-white/80 p-4 rounded-xl shadow-lg text-sm">
+    <h2 class="text-pink-600 font-semibold mb-2">🔗 Bagikan & Akses Gallery</h2>
+    <div class="mb-3">
+      <label class="block text-gray-700 mb-1">Kode Gallery Kamu:</label>
+      <div class="flex gap-2 items-center">
+        <input id="myCodeDisplay" class="flex-1 p-2 rounded border text-gray-800 bg-gray-100" readonly />
+        <button onclick="copyMyCode()" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition">Salin</button>
+      </div>
+    </div>
+    <div>
+      <label class="block text-gray-700 mb-1">Masukkan Kode Teman:</label>
+      <div class="flex gap-2 items-center">
+        <input id="inputKode" class="flex-1 p-2 rounded border" placeholder="Contoh: a39k1x" />
+        <button onclick="joinCode()" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition">Akses</button>
+      </div>
+    </div>
+  </div>
+    </div>
+  </div>
+
+  <!-- Modal Konfirmasi Hapus -->
+  <div id="confirmDeleteModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white p-6 rounded-xl shadow-lg w-80 text-center animate-fadeIn">
+      <h2 class="text-lg font-semibold mb-4 text-pink-600">Yakin ingin menghapus foto terpilih?</h2>
+      <div class="flex justify-center gap-4 mt-4">
+        <button id="cancelDeleteBtn" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400 transition">Batal</button>
+        <button id="confirmDeleteBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">Hapus</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS -->
+  <script src="script.js"></script>
+  <script src="music.js"></script>
+  <script src="delete.js"></script>
+</body>
+</html>
