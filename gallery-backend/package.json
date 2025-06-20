@@ -1,9 +1,9 @@
 {
   "name": "gallery-backend",
   "version": "1.0.0",
-  "main": "api/index.js",
+  "main": "gallery-backend/server.js",
   "scripts": {
-    "start": "node api/index.js"
+    "start": "node gallery-backend/server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
